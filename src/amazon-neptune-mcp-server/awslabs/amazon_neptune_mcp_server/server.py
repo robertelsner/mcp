@@ -110,6 +110,13 @@ def run_gremlin_query(query: str) -> dict:
     return get_graph().query_gremlin(query)
 
 
+@mcp.tool(name='get_refreshed_schema')
+def get_refreshed_schema() -> GraphSchema:
+    """Gets a fresh schema by refreshing the schema information from the graph."""
+    graph = get_graph()
+    return graph.graph._refresh_schema()
+
+
 def main():
     """Run the MCP server with CLI argument support."""
     mcp.run()

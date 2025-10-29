@@ -16,6 +16,7 @@
 import pytest
 from awslabs.amazon_neptune_mcp_server.server import (
     get_graph,
+    get_refreshed_schema,
     get_schema,
     get_schema_resource,
     get_status,
@@ -264,6 +265,32 @@ class TestGraphInitialization:
         # Assert
         assert graph == mock_server
         mock_neptune_server.assert_called_once_with('neptune-db://test-endpoint', use_https=False)
+
+
+@pytest.mark.asyncio
+class TestSchemaRefresh:
+    """Test class for schema refresh functionality."""
+
+    @patch('awslabs.amazon_neptune_mcp_server.server.get_graph')
+    async def test_get_refreshed_schema(self, mock_get_graph):
+        """Test that get_refreshed_schema correctly refreshes and returns the schema.
+        This test verifies that:
+        1. The get_graph function is called to obtain the graph instance
+        2. The _refresh_schema method is called on the underlying graph
+        3. The fresh schema is returned.
+        """
+        # Arrange
+        mock_graph = MagicMock()
+        mock_schema = MagicMock()
+        mock_graph.graph._refresh_schema.return_value = mock_schema
+        mock_get_graph.return_value = mock_graph
+
+        # Act
+        result = get_refreshed_schema()
+
+        # Assert
+        assert result == mock_schema
+        mock_graph.graph._refresh_schema.assert_called_once()
 
 
 @pytest.mark.asyncio
